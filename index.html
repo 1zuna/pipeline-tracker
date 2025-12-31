@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitLab Pipeline Status Checker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>GitLab Pipeline Status Checker</h1>
+      <button id="settingsBtn" class="settings-btn">⚙️ Settings</button>
+    </header>
+
+    <div id="settingsPanel" class="settings-panel hidden">
+      <div class="settings-content">
+        <h2>Settings</h2>
+        <label for="tokenInput">GitLab Access Token:</label>
+        <input type="password" id="tokenInput" placeholder="Enter your GitLab access token">
+        <div class="settings-actions">
+          <button id="saveTokenBtn" class="btn btn-primary">Save</button>
+          <button id="closeSettingsBtn" class="btn">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-section">
+      <input 
+        type="text" 
+        id="urlInput" 
+        placeholder="Paste GitLab job or pipeline URL (e.g., https://gitlab.example.com/project/-/pipelines/12345)"
+        class="url-input"
+      >
+      <button id="addJobBtn" class="btn btn-primary">Add</button>
+    </div>
+
+    <!-- Auto-Track Section -->
+    <div class="auto-track-section">
+      <div class="auto-track-header" id="autoTrackHeader">
+        <div class="auto-track-title">
+          <span class="collapse-icon" id="collapseIcon">▶</span>
+          <span>Auto-Track Repos</span>
+        </div>
+        <div class="auto-track-controls">
+          <label class="toggle-switch">
+            <input type="checkbox" id="autoTrackMasterSwitch">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="auto-track-content hidden" id="autoTrackContent">
+        <div class="auto-track-settings">
+          <label>
+            Polling interval: 
+            <input type="range" id="pollingIntervalSlider" min="15" max="120" value="30" step="5">
+            <span id="pollingIntervalValue">30s</span>
+          </label>
+        </div>
+        
+        <div class="auto-track-add-repo">
+          <input 
+            type="text" 
+            id="repoUrlInput" 
+            placeholder="Paste GitLab repo URL (e.g., https://gitlab.example.com/group/project)"
+            class="repo-url-input"
+          >
+          <button id="addRepoBtn" class="btn btn-primary">Add Repo</button>
+        </div>
+        
+        <div class="repo-list" id="repoList">
+          <div class="empty-repo-state">
+            <p>No repos configured. Add a repo URL above to start auto-tracking.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="jobs-list" id="jobsList">
+      <div class="empty-state">
+        <p>No jobs or pipelines being monitored. Add a URL above to start.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

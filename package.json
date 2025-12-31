@@ -1,0 +1,54 @@
+{
+  "name": "gitlab-pipeline-status-checker",
+  "version": "1.0.0",
+  "description": "Monitor GitLab pipeline/job status by URL",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder --win",
+    "build:portable": "electron-builder --win portable"
+  },
+  "keywords": ["gitlab", "pipeline", "status", "electron"],
+  "author": "",
+  "license": "MIT",
+  "build": {
+    "appId": "com.gitlab.pipeline-status-checker",
+    "productName": "GitLab Pipeline Checker",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "index.html",
+      "styles.css",
+      "gitlab-api.js",
+      "url-parser.js",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": null
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "dependencies": {
+    "axios": "^1.6.2"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  }
+}
