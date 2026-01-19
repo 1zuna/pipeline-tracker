@@ -1,10 +1,12 @@
-const { app, BrowserWindow, ipcMain, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { parseGitLabJobUrl, parseGitLabPipelineUrl, parseGitLabUrl, parseGitLabRepoUrl } = require('./url-parser');
 const GitLabAPI = require('./gitlab-api');
 
 let mainWindow;
+let tray = null;
+let isQuitting = false;
 const CONFIG_PATH = path.join(app.getPath('userData'), 'config.json');
 
 function createWindow() {
@@ -19,6 +21,62 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
+
+  // Minimize to tray instead of closing
+  mainWindow.on('close', (event) => {
+    if (!isQuitting) {
+      event.preventDefault();
+      mainWindow.hide();
+    }
+  });
+}
+
+function createTray() {
+  // Create a simple tray icon (16x16 pipeline icon)
+  const iconPath = path.join(__dirname, 'assets', 'tray-icon.png');
+  let trayIcon;
+  
+  if (fs.existsSync(iconPath)) {
+    trayIcon = nativeImage.createFromPath(iconPath);
+  } else {
+    // Create a simple colored icon if file doesn't exist
+    trayIcon = nativeImage.createEmpty();
+  }
+  
+  tray = new Tray(trayIcon);
+  
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show Pipeline Tracker',
+      click: () => {
+        if (mainWindow) {
+          mainWindow.show();
+          mainWindow.focus();
+        }
+      }
+    },
+    {
+      type: 'separator'
+    },
+    {
+      label: 'Quit',
+      click: () => {
+        isQuitting = true;
+        app.quit();
+      }
+    }
+  ]);
+  
+  tray.setToolTip('Pipeline Tracker');
+  tray.setContextMenu(contextMenu);
+  
+  // Double-click to show window
+  tray.on('double-click', () => {
+    if (mainWindow) {
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  });
 }
 
 function saveConfig(config) {
@@ -216,16 +274,24 @@ ipcMain.handle('fetch-status', async (event, url) => {
   }
 });
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createTray();
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  // Don't quit when all windows are closed (we're in tray)
+  // The app will quit when isQuitting is set to true
+});
+
+app.on('before-quit', () => {
+  isQuitting = true;
 });
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
+  if (mainWindow) {
+    mainWindow.show();
+  } else {
     createWindow();
   }
 });
